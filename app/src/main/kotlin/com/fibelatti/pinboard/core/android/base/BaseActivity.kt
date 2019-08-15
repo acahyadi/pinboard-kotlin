@@ -9,12 +9,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.FragmentFactory
 import com.fibelatti.core.di.ViewModelFactory
+import com.fibelatti.core.extension.inTransaction
 import com.fibelatti.pinboard.App
 import com.fibelatti.pinboard.BuildConfig
 import com.fibelatti.pinboard.R
+import com.fibelatti.pinboard.StackTraceFragment
 import com.fibelatti.pinboard.core.android.LightTheme
 import com.fibelatti.pinboard.core.extension.toast
 import com.fibelatti.pinboard.core.persistence.UserSharedPreferences
+import java.io.PrintWriter
+import java.io.StringWriter
 import javax.inject.Inject
 
 abstract class BaseActivity : AppCompatActivity {
@@ -45,6 +49,24 @@ abstract class BaseActivity : AppCompatActivity {
     fun handleError(error: Throwable) {
         toast(getString(R.string.generic_msg_error))
         if (BuildConfig.DEBUG) error.printStackTrace()
+
+        try {
+            val message = error.message.orEmpty()
+            val stringWriter = StringWriter()
+            val printerWriter = PrintWriter(stringWriter)
+            error.printStackTrace(printerWriter)
+
+            inTransaction {
+                setCustomAnimations(R.anim.slide_up, -1, -1, R.anim.slide_down)
+                add(
+                    R.id.fragmentHost,
+                    StackTraceFragment.newInstance(message, stringWriter.toString()),
+                    StackTraceFragment.TAG
+                )
+                addToBackStack(StackTraceFragment.TAG)
+            }
+        } catch (ignored: Exception) {
+        }
     }
 
     private fun setupTheme() {
