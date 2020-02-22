@@ -14,6 +14,7 @@ class PostActionHandler @Inject constructor(
     override suspend fun runAction(action: PostAction, currentContent: Content): Content {
         return when (action) {
             is Refresh -> refresh(currentContent)
+            is RefreshPost -> refreshPost(action, currentContent)
             is SetPosts -> setPosts(action, currentContent)
             is GetNextPostPage -> getNextPostPage(currentContent)
             is SetNextPostPage -> setNextPostPage(action, currentContent)
@@ -34,6 +35,12 @@ class PostActionHandler @Inject constructor(
             )
         } else {
             currentContent
+        }
+    }
+
+    private fun refreshPost(action: RefreshPost, currentContent: Content): Content {
+        return runOnlyForCurrentContentOfType<PostDetailContent>(currentContent) { postDetailContent ->
+            return postDetailContent.copy(post = action.post)
         }
     }
 

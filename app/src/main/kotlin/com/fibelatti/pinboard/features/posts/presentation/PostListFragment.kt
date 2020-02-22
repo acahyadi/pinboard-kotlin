@@ -36,7 +36,6 @@ import com.fibelatti.pinboard.features.appstate.Refresh
 import com.fibelatti.pinboard.features.appstate.ShouldLoadFirstPage
 import com.fibelatti.pinboard.features.appstate.ShouldLoadNextPage
 import com.fibelatti.pinboard.features.appstate.ToggleSorting
-import com.fibelatti.pinboard.features.appstate.ViewPost
 import com.fibelatti.pinboard.features.appstate.ViewSearch
 import com.fibelatti.pinboard.features.mainActivity
 import com.fibelatti.pinboard.features.posts.domain.model.Post
@@ -121,7 +120,7 @@ class PostListFragment @Inject constructor(
             .withItemOffsetDecoration(R.dimen.padding_small)
             .adapter = postsAdapter
 
-        postsAdapter.onItemClicked = { appStateViewModel.runAction(ViewPost(it)) }
+        postsAdapter.onItemClicked = { postListViewModel.viewPost(it) }
         postsAdapter.onTagClicked = { appStateViewModel.runAction(PostsForTag(it)) }
         postsAdapter.quickActionsCallback = object : PostListAdapter.QuickActionsCallback {
 

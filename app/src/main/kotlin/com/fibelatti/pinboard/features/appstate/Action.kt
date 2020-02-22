@@ -35,6 +35,7 @@ object Untagged : ViewCategory()
 sealed class PostAction : Action()
 
 object Refresh : PostAction()
+data class RefreshPost(val post: Post) : PostAction()
 data class SetPosts(val posts: Pair<Int, List<Post>>?) : PostAction()
 object GetNextPostPage : PostAction()
 data class SetNextPostPage(val posts: Pair<Int, List<Post>>?) : PostAction()

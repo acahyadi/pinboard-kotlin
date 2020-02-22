@@ -64,15 +64,34 @@ class NavigationActionHandler @Inject constructor(
 
     private fun viewPost(action: ViewPost, currentContent: Content): Content {
         val preferredDetailsView = userRepository.getPreferredDetailsView()
+        val markAsReadOnOpen = userRepository.getMarkAsReadOnOpen()
 
         return when (currentContent) {
             is PostListContent -> {
                 when (preferredDetailsView) {
                     PreferredDetailsView.InAppBrowser -> {
-                        PostDetailContent(action.post, previousContent = currentContent)
+                        PostDetailContent(
+                            action.post,
+                            previousContent = currentContent.copy(
+                                shouldLoad = if (markAsReadOnOpen) {
+                                    ShouldLoadFirstPage
+                                } else {
+                                    currentContent.shouldLoad
+                                }
+                            )
+                        )
                     }
                     PreferredDetailsView.ExternalBrowser -> {
-                        ExternalBrowserContent(action.post, previousContent = currentContent)
+                        ExternalBrowserContent(
+                            action.post,
+                            previousContent = currentContent.copy(
+                                shouldLoad = if (markAsReadOnOpen) {
+                                    ShouldLoadFirstPage
+                                } else {
+                                    currentContent.shouldLoad
+                                }
+                            )
+                        )
                     }
                     PreferredDetailsView.Edit -> {
                         EditPostContent(

@@ -1,7 +1,6 @@
 package com.fibelatti.pinboard.features.tags.data
 
 import com.fibelatti.core.functional.Result
-import com.fibelatti.core.functional.mapCatching
 import com.fibelatti.pinboard.core.functional.resultFrom
 import com.fibelatti.pinboard.core.network.RateLimitRunner
 import com.fibelatti.pinboard.features.tags.domain.TagsRepository
@@ -18,8 +17,10 @@ class TagsDataSource @Inject constructor(
 
     override suspend fun getAllTags(): Result<List<Tag>> =
         withContext(Dispatchers.IO) {
-            resultFrom { rateLimitRunner.run(tagsApi::getTags) }
-                .mapCatching { it.map { (tag, posts) -> Tag(tag, posts.toInt()) } }
+            resultFrom {
+                rateLimitRunner.run(tagsApi::getTags)
+                    .map { (tag, posts) -> Tag(tag, posts.toInt()) }
+            }
         }
 }
 

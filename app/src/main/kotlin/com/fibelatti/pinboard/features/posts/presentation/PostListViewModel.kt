@@ -5,12 +5,14 @@ import com.fibelatti.core.archcomponents.BaseViewModel
 import com.fibelatti.core.extension.exhaustive
 import com.fibelatti.core.functional.mapCatching
 import com.fibelatti.core.functional.onFailure
+import com.fibelatti.core.functional.onSuccess
 import com.fibelatti.pinboard.features.appstate.All
 import com.fibelatti.pinboard.features.appstate.AppStateRepository
 import com.fibelatti.pinboard.features.appstate.PostListContent
 import com.fibelatti.pinboard.features.appstate.Private
 import com.fibelatti.pinboard.features.appstate.Public
 import com.fibelatti.pinboard.features.appstate.Recent
+import com.fibelatti.pinboard.features.appstate.RefreshPost
 import com.fibelatti.pinboard.features.appstate.SetNextPostPage
 import com.fibelatti.pinboard.features.appstate.SetPosts
 import com.fibelatti.pinboard.features.appstate.ShouldLoadFirstPage
@@ -18,17 +20,23 @@ import com.fibelatti.pinboard.features.appstate.ShouldLoadNextPage
 import com.fibelatti.pinboard.features.appstate.SortType
 import com.fibelatti.pinboard.features.appstate.Unread
 import com.fibelatti.pinboard.features.appstate.Untagged
+import com.fibelatti.pinboard.features.appstate.ViewPost
+import com.fibelatti.pinboard.features.posts.domain.model.Post
 import com.fibelatti.pinboard.features.posts.domain.usecase.GetAllPosts
 import com.fibelatti.pinboard.features.posts.domain.usecase.GetPostParams
 import com.fibelatti.pinboard.features.posts.domain.usecase.GetRecentPosts
+import com.fibelatti.pinboard.features.posts.domain.usecase.MarkAsRead
 import com.fibelatti.pinboard.features.tags.domain.model.Tag
+import com.fibelatti.pinboard.features.user.domain.UserRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PostListViewModel @Inject constructor(
     private val getAllPosts: GetAllPosts,
     private val getRecentPosts: GetRecentPosts,
-    private val appStateRepository: AppStateRepository
+    private val markAsRead: MarkAsRead,
+    private val appStateRepository: AppStateRepository,
+    private val userRepository: UserRepository
 ) : BaseViewModel() {
 
     fun loadContent(content: PostListContent) {
@@ -142,6 +150,15 @@ class PostListViewModel @Inject constructor(
                     )
                 }
                 .onFailure(::handleError)
+        }
+    }
+
+    fun viewPost(post: Post) {
+        launch {
+            if (post.readLater && userRepository.getMarkAsReadOnOpen()) {
+                markAsRead(post).onSuccess { appStateRepository.runAction(RefreshPost(it)) }
+            }
+            appStateRepository.runAction(ViewPost(post))
         }
     }
 }

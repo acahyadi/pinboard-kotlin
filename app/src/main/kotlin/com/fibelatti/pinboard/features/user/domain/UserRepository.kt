@@ -50,4 +50,8 @@ interface UserRepository {
     fun getEditAfterSharing(): Boolean
 
     fun setEditAfterSharing(value: Boolean)
+
+    fun getMarkAsReadOnOpen(): Boolean
+
+    fun setMarkAsReadOnOpen(value: Boolean)
 }

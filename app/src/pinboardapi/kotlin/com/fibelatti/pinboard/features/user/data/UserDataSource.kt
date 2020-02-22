@@ -120,4 +120,10 @@ class UserDataSource @Inject constructor(
     override fun setEditAfterSharing(value: Boolean) {
         userSharedPreferences.setEditAfterSharing(value)
     }
+
+    override fun getMarkAsReadOnOpen(): Boolean = true
+
+    override fun setMarkAsReadOnOpen(value: Boolean) {
+        // TODO
+    }
 }
